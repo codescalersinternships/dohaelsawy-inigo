@@ -1,6 +1,7 @@
 package test
 
 import (
+	"reflect"
 	"testing"
 
 	inipkg "github.com/dohaelsawy/codescalers/ini/pkg"
@@ -18,10 +19,24 @@ func TestLoadFile(t *testing.T) {
 
 	t.Run("this test should pass", func(t *testing.T) {
 		ini := inipkg.NewIni()
-		str, err := ini.LoadFromFile("/home/doha/doha/codescalers/week2/ini/sample.ini")
-		if err != nil {
-			t.Errorf("err %e", err)
+		// ans := &map[string]map[string]string{
+		// 	"eample": {
+		// 		"key":  "value",
+		// 		"key2": "value",
+		// 	},
+		// }
+
+		res := &inipkg.IniFile{
+			IniMap: map[string]map[string]string{
+				"example": {
+					"key":  "value",
+					"key2": "value",
+				},
+			},
 		}
-		println(str)
+		iniresult, _ := ini.LoadFromFile("/home/doha/doha/codescalers/week2/ini/sample.ini")
+		if !reflect.DeepEqual(iniresult, res) {
+			t.Errorf("i expected %v , found %v", res, iniresult)
+		}
 	})
 }

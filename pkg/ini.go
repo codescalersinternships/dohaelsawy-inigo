@@ -20,14 +20,16 @@ func NewIni() *IniFile {
 	return &IniFile{IniMap: make(map[string]map[string]string)}
 }
 
-func (ini IniFile) LoadFromFile(path string) (string, error) {
+var emptyINitFIle = IniFile{}
+
+func (ini IniFile) LoadFromFile(path string) (*IniFile, error) {
 	data, err := os.ReadFile(path)
 
 	if err != nil {
-		return "", ErrFileNotExist
+		return &emptyINitFIle, ErrFileNotExist
 	}
-	err = ini.LoadFromString(string(data))
-	return succesLoading, err
+	return ini.LoadFromString(string(data))
+
 }
 
 // RUles :
@@ -37,7 +39,7 @@ func (ini IniFile) LoadFromFile(path string) (string, error) {
 // keys and values should have spaces trimmed
 // comments are only valid at the beginning of the line
 
-func (ini IniFile) LoadFromString(data string) error {
+func (ini IniFile) LoadFromString(data string) (*IniFile, error) {
 	lines := strings.Split(data, "\n")
 	var lastSection string = ErrInStructure.Error()
 	for _, line := range lines {
@@ -53,10 +55,10 @@ func (ini IniFile) LoadFromString(data string) error {
 			}
 			lastSection = parts[1]
 		} else if _, ok := ini.IniMap[lastSection]; !ok {
-			return ErrInStructure
+			return &emptyINitFIle, ErrInStructure
 		} else {
 			ini.IniMap[lastSection][parts[0]] = parts[len(parts)-1]
 		}
 	}
-	return nil
+	return &ini, nil
 }
