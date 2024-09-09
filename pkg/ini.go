@@ -27,7 +27,6 @@ func (ini IniFile) LoadFromFile(path string) (*IniFile, error) {
 		return &emptyINitFIle, err
 	}
 	return ini.LoadFromString(string(data))
-
 }
 
 // RUles :
@@ -40,7 +39,7 @@ func (ini IniFile) LoadFromFile(path string) (*IniFile, error) {
 func (ini IniFile) LoadFromString(data string) (*IniFile, error) {
 
 	lines := strings.Split(data, "\n")
-	
+
 	var lastSection string
 	var keyValue []string
 
@@ -74,4 +73,10 @@ func (ini IniFile) LoadFromString(data string) (*IniFile, error) {
 		ini.IniMap[lastSection][keyValue[0]] = keyValue[1]
 	}
 	return &ini, nil
+}
+
+
+
+func (ini IniFile) GetSectionNames() (*IniFile, error){
+	return &emptyINitFIle , nil
 }
