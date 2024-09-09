@@ -7,9 +7,7 @@ import (
 )
 
 var (
-	ErrFileNotExist = errors.New("file does not exist")
 	ErrInStructure  = errors.New("the file is not following ini rules")
-	succesLoading   = "loaded successfully"
 )
 
 type IniFile struct {
@@ -26,7 +24,7 @@ func (ini IniFile) LoadFromFile(path string) (*IniFile, error) {
 	data, err := os.ReadFile(path)
 
 	if err != nil {
-		return &emptyINitFIle, ErrFileNotExist
+		return &emptyINitFIle, err
 	}
 	return ini.LoadFromString(string(data))
 
@@ -40,25 +38,40 @@ func (ini IniFile) LoadFromFile(path string) (*IniFile, error) {
 // comments are only valid at the beginning of the line
 
 func (ini IniFile) LoadFromString(data string) (*IniFile, error) {
-	lines := strings.Split(data, "\n")
-	var lastSection string = ErrInStructure.Error()
-	for _, line := range lines {
-		parts := strings.Fields(line)
 
-		if len(parts) == 0 || parts[0] == ";" {
+	lines := strings.Split(data, "\n")
+	
+	var lastSection string
+	var keyValue []string
+
+	for _, line := range lines {
+	
+		iniLine := strings.ReplaceAll(line, " ", "")
+		iniLine = strings.Trim(iniLine,"\n")
+	
+		if len(iniLine) == 0 || iniLine[0] == ';' {
+			continue
+		}
+	
+		if iniLine[0] == '[' && iniLine[len(iniLine)-1] == ']' {
+
+			section := strings.Trim(iniLine,"[]")
+			ini.IniMap[section] = make(map[string]string)
+			lastSection = section
 			continue
 		}
 
-		if parts[0] == "[" && parts[len(parts)-1] == "]" {
-			ini.IniMap[parts[1]] = map[string]string{
-				"key": "value",
-			}
-			lastSection = parts[1]
-		} else if _, ok := ini.IniMap[lastSection]; !ok {
-			return &emptyINitFIle, ErrInStructure
-		} else {
-			ini.IniMap[lastSection][parts[0]] = parts[len(parts)-1]
+		if _, ok := ini.IniMap[lastSection]; !ok {
+			return &emptyINitFIle , ErrInStructure
 		}
+
+		keyValue = strings.Split(iniLine,"=")
+		
+		if len(keyValue) != 2 {
+			return &emptyINitFIle , ErrInStructure
+		}
+
+		ini.IniMap[lastSection][keyValue[0]] = keyValue[1]
 	}
 	return &ini, nil
 }
