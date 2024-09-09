@@ -126,3 +126,33 @@ func TestGetSections(t *testing.T) {
 	})
 
 }
+
+
+
+func TestGet(t *testing.T){
+	t.Run("should return the correct value", func(t *testing.T) {
+		ini := inipkg.NewIni()
+
+		expect := "value"
+
+		ini.LoadFromFile("/home/doha/doha/codescalers/week2/ini/sample.ini")
+		ans := ini.Get("example","key")
+		
+
+		if !reflect.DeepEqual(expect, ans) {
+			t.Errorf("i expected %v , found %v", expect, ans)
+		}
+	})
+}
+
+
+func TestSet(t *testing.T){
+	t.Run("should set the correct value", func(t *testing.T) {
+		ini := inipkg.NewIni()
+
+		ini.LoadFromFile("/home/doha/doha/codescalers/week2/ini/sample.ini")
+		ini.Set("example","key","diffente value")
+
+		ini.SaveToFile()
+	})
+}
