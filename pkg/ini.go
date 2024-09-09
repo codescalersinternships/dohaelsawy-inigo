@@ -84,3 +84,8 @@ func (ini *IniFile) GetSectionNames(mapIni *IniFile) []string{
 	} 
 	return ans
 }
+
+
+func (ini *IniFile) GetSections(mapIni *IniFile) map[string]map[string]string {
+	return mapIni.IniMap
+}

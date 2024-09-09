@@ -99,3 +99,34 @@ func TestGetSectionNames(t *testing.T){
 		}
 	})
 }
+
+
+
+func TestGetSections(t *testing.T){
+
+	t.Run("should return all the map",func(t *testing.T) {
+		ini := inipkg.NewIni()
+
+		expect := map[string]map[string]string{
+			"example": {
+				"key":  "value",
+				"key2": "value",
+			},
+			"example2":{
+				"key":  "value",
+				"key2": "value",
+			},
+
+		}
+	
+
+		mapini , _ := ini.LoadFromFile("/home/doha/doha/codescalers/week2/ini/sample.ini")
+		ans := ini.GetSections(mapini)
+
+		if !reflect.DeepEqual(expect, ans) {
+			t.Errorf("i expected %v , found %v", expect, ans)
+		}
+	})
+
+}
+
