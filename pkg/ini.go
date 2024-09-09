@@ -18,13 +18,13 @@ func NewIni() *IniFile {
 	return &IniFile{IniMap: make(map[string]map[string]string)}
 }
 
-var emptyINitFIle = IniFile{}
+var emptyINitFIle = &IniFile{}
 
-func (ini IniFile) LoadFromFile(path string) (*IniFile, error) {
+func (ini *IniFile) LoadFromFile(path string) (*IniFile, error) {
 	data, err := os.ReadFile(path)
 
 	if err != nil {
-		return &emptyINitFIle, err
+		return emptyINitFIle, err
 	}
 	return ini.LoadFromString(string(data))
 }
@@ -36,7 +36,7 @@ func (ini IniFile) LoadFromFile(path string) (*IniFile, error) {
 // keys and values should have spaces trimmed
 // comments are only valid at the beginning of the line
 
-func (ini IniFile) LoadFromString(data string) (*IniFile, error) {
+func (ini *IniFile) LoadFromString(data string) (*IniFile, error) {
 
 	lines := strings.Split(data, "\n")
 
@@ -61,22 +61,26 @@ func (ini IniFile) LoadFromString(data string) (*IniFile, error) {
 		}
 
 		if _, ok := ini.IniMap[lastSection]; !ok {
-			return &emptyINitFIle , ErrInStructure
+			return emptyINitFIle , ErrInStructure
 		}
 
 		keyValue = strings.Split(iniLine,"=")
 		
 		if len(keyValue) != 2 {
-			return &emptyINitFIle , ErrInStructure
+			return emptyINitFIle , ErrInStructure
 		}
 
 		ini.IniMap[lastSection][keyValue[0]] = keyValue[1]
 	}
-	return &ini, nil
+	return ini, nil
 }
 
 
 
-func (ini IniFile) GetSectionNames() (*IniFile, error){
-	return &emptyINitFIle , nil
+func (ini *IniFile) GetSectionNames(mapIni *IniFile) []string{
+	var ans []string 
+	for section := range mapIni.IniMap {	
+		ans = append(ans, section)
+	} 
+	return ans
 }

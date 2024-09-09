@@ -80,3 +80,22 @@ func TestLoadFromString(t *testing.T) {
 		}
 	})
 }
+
+
+func TestGetSectionNames(t *testing.T){
+	t.Run("return all section names inside map",func(t *testing.T) {
+
+		ini := inipkg.NewIni()
+
+		expect := []string{
+			"example",
+		}
+
+		mapini , _ := ini.LoadFromFile("/home/doha/doha/codescalers/week2/ini/sample.ini")
+		ans := ini.GetSectionNames(mapini)
+
+		if !reflect.DeepEqual(expect, ans) {
+			t.Errorf("i expected %v , found %v", expect, ans)
+		}
+	})
+}
