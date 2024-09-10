@@ -12,6 +12,16 @@ import (
 
 const filePath = "/home/doha/doha/codescalers/week2/ini/test/testdata/data.ini"
 
+const generalInput = `  [ package name ]
+	name = ini parser
+	   file path =  /pkg/ini.go
+
+	[package version]
+	version = v1.0.0
+
+	;comment should not be part of ini map
+`
+
 var (
 	ErrInStructure = errors.New("the file is not following ini rules")
 	ErrNoSection   = errors.New("there is no section with this name")
@@ -50,13 +60,7 @@ func TestLoadFromString(t *testing.T) {
 	}{
 		{
 			description: "test for correct input by INI Rules",
-			input: `  [ package name ]
-					name = ini parser
-				file path =  /pkg/ini.go
-				[package version]
-				version = v1.0.0
-				;comment should not be part of ini map
-			`,
+			input: generalInput,
 			expect: ReturnedExpectedMap(),
 			err:    nil,
 		},
@@ -133,10 +137,7 @@ func TestGetSectionNames(t *testing.T) {
 		}{
 			{
 				description: "test for retrive all section names correctly",
-				input: `[ package name ]
-					name = ini parser
-				file path =  /pkg/ini.go
-				[package version]`,
+				input: generalInput ,
 				expect: []string{"package name", "package version"},
 			},
 			{
@@ -175,11 +176,7 @@ func TestGetSections(t *testing.T) {
 		}{
 			{
 				description: "test for retrive ini map correctly",
-				input: `[ package name ]
-					name = ini parser
-				file path =  /pkg/ini.go
-				[package version]
-				version = v1.0.0`,
+				input: generalInput,
 				expect: ReturnedExpectedMap(),
 			},
 			{
@@ -222,12 +219,7 @@ func TestGetSections(t *testing.T) {
 
 func TestGet(t *testing.T) {
 	t.Run("tests should pass for sending input by strings", func(t *testing.T) {
-		input := `[ package name ]
-			name = ini parser
-		file path =  /pkg/ini.go
-		[package version]
-		version = v1.0.0
-		;comment should not be part of ini map`
+		input := generalInput 
 
 		tests := []struct {
 			description string
@@ -277,12 +269,7 @@ func TestGet(t *testing.T) {
 func TestSet(t *testing.T) {
 	t.Run("tests should pass for sending input by strings", func(t *testing.T) {
 
-		input := `[ package name ]
-			name = ini parser
-		file path =  /pkg/ini.go
-		[package version]
-			version = v1.0.0
-		;comment should not be part of ini map`
+		input := generalInput
 
 		tests := []struct {
 			description string
@@ -328,19 +315,7 @@ func TestSet(t *testing.T) {
 
 func TestSaveToFile(t *testing.T) {
 	t.Run("tests should pass for sending input by strings and saving file with correct format", func(t *testing.T) {
-		input := `
-				[ package name ]
-			name = ini parser
-		file path =  /pkg/ini.go
-
-		[package version]
-		version = v1.0.0
-		comping = v2.0.0
-
-
-		;comment should not be part of ini map
-
-		`
+		input := generalInput
 
 		ini := inipkg.NewIni()
 		ini.LoadFromString(input)
@@ -374,5 +349,4 @@ func TestToString(t *testing.T) {
 			t.Errorf("i expect %v , i got %v", expect,result)
 		}
 	})
-
 }
