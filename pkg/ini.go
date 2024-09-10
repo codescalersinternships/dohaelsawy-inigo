@@ -2,13 +2,15 @@ package pkg
 
 import (
 	"errors"
-
+	"fmt"
 	"os"
 	"strings"
 )
 
 var (
 	ErrInStructure = errors.New("the file is not following ini rules")
+	ErrNoSection = errors.New("there is no section with this name")
+	ErrNoKey = errors.New("there is no key with this name")
 )
 
 type IniFile struct {
@@ -44,8 +46,7 @@ func (ini *IniFile) LoadFromString(data string) error {
 
 	for _, line := range lines {
 
-		iniLine := strings.ReplaceAll(line, " ", "")
-		iniLine = strings.Trim(iniLine, "\n")
+		iniLine := strings.Trim(line, " \n")
 
 		if len(iniLine) == 0 || iniLine[0] == ';' {
 			continue
@@ -53,8 +54,8 @@ func (ini *IniFile) LoadFromString(data string) error {
 
 		if iniLine[0] == '[' && iniLine[len(iniLine)-1] == ']' {
 
-			section := strings.Trim(iniLine, "[]")
-			ini.IniMap[section] = make(map[string]string)
+			section := strings.Trim(iniLine, "[ ]")
+			ini.IniMap[section] = make(map[string]string,0)
 			lastSection = section
 			continue
 		}
@@ -64,15 +65,21 @@ func (ini *IniFile) LoadFromString(data string) error {
 		}
 
 		keyValue = strings.Split(iniLine, "=")
-
+		
 		if len(keyValue) != 2 {
 			return ErrInStructure
+		}
+
+		for i , kv := range keyValue{
+			keyValue[i] = strings.Trim(kv," \n")
 		}
 
 		ini.IniMap[lastSection][keyValue[0]] = keyValue[1]
 	}
 	return nil
 }
+
+
 
 func (ini *IniFile) GetSectionNames() []string {
 	var ans []string
@@ -86,16 +93,25 @@ func (ini *IniFile) GetSections() map[string]map[string]string {
 	return ini.IniMap
 }
 
-func (ini *IniFile) Get(section_name, key string) string {
-	return ini.IniMap[section_name][key]
+
+func (ini *IniFile) Get(section_name, key string) (string, error){
+	if _, ok := ini.IniMap[section_name]; !ok {
+		return "" , ErrNoSection
+	}
+	if _, ok := ini.IniMap[section_name][key]; !ok {
+		return "" , ErrNoKey
+	}
+	return ini.IniMap[section_name][key] , nil
 }
+
+
 
 func (ini *IniFile) Set(section_name, key, value string) {
 	ini.IniMap[section_name][key] = value
 }
 
 func (ini *IniFile) SaveToFile() error {
-	file , err := os.Create("/home/doha/doha/codescalers/week2/ini/sample.ini")
+	file , err := os.Create("/home/doha/doha/codescalers/week2/ini/file.ini")
 	if err != nil {
 		return err
 	}
@@ -106,7 +122,7 @@ func (ini *IniFile) SaveToFile() error {
 		file.WriteString("\n")
 		for key,value := range keys {
 			file.WriteString(key)
-			file.WriteString("=")
+			file.WriteString(" = ")
 			file.WriteString(value)
 			file.WriteString("\n")
 		}
@@ -114,4 +130,16 @@ func (ini *IniFile) SaveToFile() error {
 
 	defer file.Close()
 	return nil
+}
+
+
+func (ini *IniFile) ToString() string{
+	var iniText string
+	for section , keys := range ini.IniMap {
+		iniText += fmt.Sprintf("[%s]\n",section)
+		for key,value := range keys {
+			iniText += fmt.Sprintf("%s = %s\n" ,key, value)
+		}
+	}
+	return iniText
 }
