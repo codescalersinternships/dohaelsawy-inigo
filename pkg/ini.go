@@ -112,8 +112,8 @@ func (ini *IniFile) Set(section_name, key, value string) {
 	ini.IniMap[section_name][key] = value
 }
 
-func (ini *IniFile) SaveToFile() error {
-	file, err := os.Create("/home/doha/doha/codescalers/week2/ini/file.ini")
+func (ini *IniFile) SaveToFile(filename string) error {
+	file, err := os.Create(filename)
 	if err != nil {
 		return err
 	}
