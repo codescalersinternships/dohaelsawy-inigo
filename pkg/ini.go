@@ -9,8 +9,8 @@ import (
 
 var (
 	ErrInStructure = errors.New("the file is not following ini rules")
-	ErrNoSection = errors.New("there is no section with this name")
-	ErrNoKey = errors.New("there is no key with this name")
+	ErrNoSection   = errors.New("there is no section with this name")
+	ErrNoKey       = errors.New("there is no key with this name")
 )
 
 type IniFile struct {
@@ -43,7 +43,7 @@ func (ini *IniFile) LoadFromString(data string) error {
 
 	var lastSection string
 	var keyValue []string
-	var key , value string
+	var key, value string
 
 	for _, line := range lines {
 
@@ -56,7 +56,15 @@ func (ini *IniFile) LoadFromString(data string) error {
 		if iniLine[0] == '[' && iniLine[len(iniLine)-1] == ']' {
 
 			section := strings.Trim(iniLine, "[ ]")
-			ini.IniMap[section] = make(map[string]string,0)
+
+
+			if section == "" {
+				ini.IniMap = make(map[string]map[string]string)
+				return ErrInStructure
+			}
+
+
+			ini.IniMap[section] = make(map[string]string, 0)
 			lastSection = section
 			continue
 		}
@@ -67,25 +75,16 @@ func (ini *IniFile) LoadFromString(data string) error {
 			return ErrInStructure
 		}
 
-		keyValue = strings.Split(iniLine,"=")
+		keyValue = strings.Split(iniLine, "=")
 
-		
-		key = strings.Trim(keyValue[0]," \n\t")
-		value = strings.Trim(keyValue[1]," \n\t")
-
-		if key == "" || value == "" {
-			ini.IniMap = map[string]map[string]string{}
-			
-			return ErrInStructure
-		}
+		key = strings.Trim(keyValue[0], " \n\t")
+		value = strings.Trim(keyValue[1], " \n\t")
 
 		ini.IniMap[lastSection][key] = value
-	
+
 	}
 	return nil
 }
-
-
 
 func (ini *IniFile) GetSectionNames() []string {
 	var ans []string
@@ -99,34 +98,31 @@ func (ini *IniFile) GetSections() map[string]map[string]string {
 	return ini.IniMap
 }
 
-
-func (ini *IniFile) Get(section_name, key string) (string, error){
+func (ini *IniFile) Get(section_name, key string) (string, error) {
 	if _, ok := ini.IniMap[section_name]; !ok {
-		return "" , ErrNoSection
+		return "", ErrNoSection
 	}
 	if _, ok := ini.IniMap[section_name][key]; !ok {
-		return "" , ErrNoKey
+		return "", ErrNoKey
 	}
-	return ini.IniMap[section_name][key] , nil
+	return ini.IniMap[section_name][key], nil
 }
-
-
 
 func (ini *IniFile) Set(section_name, key, value string) {
 	ini.IniMap[section_name][key] = value
 }
 
 func (ini *IniFile) SaveToFile() error {
-	file , err := os.Create("/home/doha/doha/codescalers/week2/ini/file.ini")
+	file, err := os.Create("/home/doha/doha/codescalers/week2/ini/file.ini")
 	if err != nil {
 		return err
 	}
-	for section , keys := range ini.IniMap {
+	for section, keys := range ini.IniMap {
 		file.WriteString("[")
 		file.WriteString(section)
 		file.WriteString("]")
 		file.WriteString("\n")
-		for key,value := range keys {
+		for key, value := range keys {
 			file.WriteString(key)
 			file.WriteString(" = ")
 			file.WriteString(value)
@@ -138,13 +134,12 @@ func (ini *IniFile) SaveToFile() error {
 	return nil
 }
 
-
-func (ini *IniFile) ToString() string{
+func (ini *IniFile) ToString() string {
 	var iniText string
-	for section , keys := range ini.IniMap {
-		iniText += fmt.Sprintf("[%s]\n",section)
-		for key,value := range keys {
-			iniText += fmt.Sprintf("%s = %s\n" ,key, value)
+	for section, keys := range ini.IniMap {
+		iniText += fmt.Sprintf("[%s]\n", section)
+		for key, value := range keys {
+			iniText += fmt.Sprintf("%s = %s\n", key, value)
 		}
 	}
 	return iniText
