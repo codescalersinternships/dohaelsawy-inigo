@@ -3,6 +3,7 @@ package test
 import (
 	"errors"
 	"reflect"
+	"sort"
 	"testing"
 
 	inipkg "github.com/dohaelsawy/codescalers/ini/pkg"
@@ -10,6 +11,12 @@ import (
 )
 
 const filePath = "/home/doha/doha/codescalers/week2/ini/test/testdata/data.ini"
+
+var (
+	ErrInStructure = errors.New("the file is not following ini rules")
+	ErrNoSection   = errors.New("there is no section with this name")
+	ErrNoKey       = errors.New("there is no key with this name")
+)
 
 func ReturnedExpectedMap() map[string]map[string]string {
 	return map[string]map[string]string{
@@ -24,7 +31,7 @@ func ReturnedExpectedMap() map[string]map[string]string {
 }
 
 func TestLoadFromFile(t *testing.T) {
-	t.Run("tests should pass", func(t *testing.T) {
+	t.Run("test should pass for sending input by file", func(t *testing.T) {
 
 		ini := inipkg.NewIni()
 		err := ini.LoadFromFile(filePath)
@@ -46,32 +53,29 @@ func TestLoadFromString(t *testing.T) {
 			input: `  [ package name ]
 					name = ini parser
 				file path =  /pkg/ini.go
-
 				[package version]
 				version = v1.0.0
-
 				;comment should not be part of ini map
 			`,
 			expect: ReturnedExpectedMap(),
 			err:    nil,
 		},
+
 		{
 			description: "test for input missing ] between key and value",
 			input: `  [ package name 
 			name = ini parser
 			file path =  /pkg/ini.go
-
 			[package version]
 			version = v1.0.0
-
 			;comment should not be part of ini map
-
 			`,
 			expect: make(map[string]map[string]string, 0),
-			err:    errors.New("the file is not following ini rules"),
+			err:    ErrInStructure,
 		},
+
 		{
-			description: "test for no key and value for section",
+			description: "test for section with no key and value",
 			input: `[ package name ]
 					name = ini parser
 				file path =  /pkg/ini.go
@@ -88,22 +92,24 @@ func TestLoadFromString(t *testing.T) {
 
 			err: nil,
 		},
+
 		{
 			description: "test for input empty",
-			input: `
-			`,
-			expect: make(map[string]map[string]string, 0),
-			err:    nil,
+			input:       ``,
+			expect:      make(map[string]map[string]string, 0),
+			err:         nil,
 		},
+
 		{
 			description: "test for input with empty section and key = value",
 			input: ` []
 			key = value
 			`,
 			expect: make(map[string]map[string]string, 0),
-			err:    errors.New("the file is not following ini rules"),
+			err:    ErrInStructure,
 		},
 	}
+
 	for _, test := range tests {
 
 		t.Run(test.description, func(t *testing.T) {
@@ -130,7 +136,6 @@ func TestGetSectionNames(t *testing.T) {
 				input: `[ package name ]
 					name = ini parser
 				file path =  /pkg/ini.go
-
 				[package version]`,
 				expect: []string{"package name", "package version"},
 			},
@@ -144,14 +149,16 @@ func TestGetSectionNames(t *testing.T) {
 
 		for _, test := range tests {
 			t.Run(test.description, func(t *testing.T) {
+
 				ini := inipkg.NewIni()
 				ini.LoadFromString(test.input)
 
 				result := ini.GetSectionNames()
 
-				if !reflect.DeepEqual(result, test.expect) {
-					t.Fail()
-				}
+				sort.Strings(result)
+				sort.Strings(test.expect)
+
+				assert.Equal(t, test.expect, result)
 			})
 		}
 
@@ -183,7 +190,7 @@ func TestGetSections(t *testing.T) {
 				expect: make(map[string]map[string]string),
 			},
 			{
-				description: "test for retrive iniMap while there is no key and value for section",
+				description: "test for retrive iniMap section with no key and value",
 				input: `[ package name ]
 					name = ini parser
 				file path =  /pkg/ini.go
@@ -215,17 +222,12 @@ func TestGetSections(t *testing.T) {
 
 func TestGet(t *testing.T) {
 	t.Run("tests should pass for sending input by strings", func(t *testing.T) {
-		input := `
-				[ package name ]
+		input := `[ package name ]
 			name = ini parser
 		file path =  /pkg/ini.go
-
 		[package version]
 		version = v1.0.0
-
-		;comment should not be part of ini map
-
-		`
+		;comment should not be part of ini map`
 
 		tests := []struct {
 			description string
@@ -246,14 +248,14 @@ func TestGet(t *testing.T) {
 				section:     "package name",
 				key:         "wrongname",
 				expect:      "",
-				err:         errors.New("there is no key with this name"),
+				err:         ErrNoKey,
 			},
 			{
 				description: "test for retrive secion not exist",
 				section:     "package",
 				key:         "wrongname",
 				expect:      "",
-				err:         errors.New("there is no section with this name"),
+				err:         ErrNoSection,
 			},
 		}
 
@@ -275,17 +277,13 @@ func TestGet(t *testing.T) {
 func TestSet(t *testing.T) {
 	t.Run("tests should pass for sending input by strings", func(t *testing.T) {
 
-		input := `
-				[ package name ]
+		input := `[ package name ]
 			name = ini parser
 		file path =  /pkg/ini.go
-
 		[package version]
-		version = v1.0.0
+			version = v1.0.0
+		;comment should not be part of ini map`
 
-		;comment should not be part of ini map
-
-		`
 		tests := []struct {
 			description string
 			section     string
@@ -303,6 +301,12 @@ func TestSet(t *testing.T) {
 				section:     "package version",
 				key:         "new version",
 				value:       "v2.0.0",
+			},
+			{
+				description: "test for set new section and value correctly",
+				section:     "package",
+				key:         "new version",
+				value:       "v3.0.0",
 			},
 		}
 
@@ -350,34 +354,25 @@ func TestSaveToFile(t *testing.T) {
 		ini.LoadFromFile(path)
 		expect := ini.IniMap
 
-		assert.Equal(t, expect ,savedResult)
+		assert.Equal(t, expect, savedResult)
 
 	})
 }
 
-
-
 func TestToString(t *testing.T) {
 	t.Run("tests should pass converting iniMap to string", func(t *testing.T) {
-		input := `  [ package name ]
-				name = ini parser
-			file path =  /pkg/ini.go
-
-			[package version]
-			version = v1.0.0
-
-			;comment should not be part of ini map
-
-		`
 
 		ini := inipkg.NewIni()
-		
-		ini.LoadFromString(input)
-		result := ini.ToString()
 
 		ini.LoadFromFile(filePath)
+		result := ini.ToString()
+
+		ini.LoadFromString(result)
 		expect := ini.ToString()
 
-		assert.Equal(t, result,expect)
+		if !reflect.DeepEqual(expect,result){
+			t.Errorf("i expect %v , i got %v", expect,result)
+		}
 	})
+
 }

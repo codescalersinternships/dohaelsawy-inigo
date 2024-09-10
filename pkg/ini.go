@@ -108,7 +108,10 @@ func (ini *IniFile) Get(section_name, key string) (string, error) {
 	return ini.IniMap[section_name][key], nil
 }
 
-func (ini *IniFile) Set(section_name, key, value string) {
+func (ini *IniFile) Set(section_name, key, value string){
+	if _, ok := ini.IniMap[section_name]; !ok {
+		ini.IniMap[section_name] = make(map[string]string, 0)
+	} 
 	ini.IniMap[section_name][key] = value
 }
 
