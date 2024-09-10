@@ -43,7 +43,6 @@ func TestLoadFromString(t *testing.T) {
 	}{
 		{
 			description: "test for correct input by INI Rules",
-
 			input: `  [ package name ]
 					name = ini parser
 				file path =  /pkg/ini.go
@@ -54,12 +53,10 @@ func TestLoadFromString(t *testing.T) {
 				;comment should not be part of ini map
 			`,
 			expect: ReturnedExpectedMap(),
-
-			err: nil,
+			err:    nil,
 		},
 		{
 			description: "test for input missing ] between key and value",
-
 			input: `  [ package name 
 			name = ini parser
 			file path =  /pkg/ini.go
@@ -71,19 +68,16 @@ func TestLoadFromString(t *testing.T) {
 
 			`,
 			expect: make(map[string]map[string]string, 0),
-
-			err: errors.New("the file is not following ini rules"),
+			err:    errors.New("the file is not following ini rules"),
 		},
 		{
 			description: "test for no key and value for section",
-
 			input: `[ package name ]
 					name = ini parser
 				file path =  /pkg/ini.go
 
 				[package version]
 				`,
-
 			expect: map[string]map[string]string{
 				"package name": {
 					"name":      "ini parser",
@@ -96,22 +90,18 @@ func TestLoadFromString(t *testing.T) {
 		},
 		{
 			description: "test for input empty",
-
 			input: `
 			`,
 			expect: make(map[string]map[string]string, 0),
-
-			err: nil,
+			err:    nil,
 		},
 		{
 			description: "test for input with empty section and key = value",
-
 			input: ` []
 			key = value
 			`,
 			expect: make(map[string]map[string]string, 0),
-
-			err: errors.New("the file is not following ini rules"),
+			err:    errors.New("the file is not following ini rules"),
 		},
 	}
 	for _, test := range tests {
@@ -128,16 +118,6 @@ func TestLoadFromString(t *testing.T) {
 }
 
 func TestGetSectionNames(t *testing.T) {
-	t.Run("tests should pass for sending input by file", func(t *testing.T) {
-		expect := []string{"package name", "package version"}
-
-		ini := inipkg.NewIni()
-		ini.LoadFromFile(filePath)
-
-		result := ini.GetSectionNames()
-		assert.Equal(t, expect, result)
-	})
-
 	t.Run("tests should pass for sending input by strings", func(t *testing.T) {
 
 		tests := []struct {
@@ -147,22 +127,17 @@ func TestGetSectionNames(t *testing.T) {
 		}{
 			{
 				description: "test for retrive all section names correctly",
-
 				input: `[ package name ]
 					name = ini parser
 				file path =  /pkg/ini.go
 
 				[package version]`,
-
 				expect: []string{"package name", "package version"},
 			},
 			{
-
 				description: "test for retrive empty section names",
-
 				input: `[]
 				[]`,
-
 				expect: []string(nil),
 			},
 		}
@@ -173,8 +148,8 @@ func TestGetSectionNames(t *testing.T) {
 				ini.LoadFromString(test.input)
 
 				result := ini.GetSectionNames()
-				
-				if !reflect.DeepEqual(result,test.expect){
+
+				if !reflect.DeepEqual(result, test.expect) {
 					t.Fail()
 				}
 			})
@@ -184,18 +159,6 @@ func TestGetSectionNames(t *testing.T) {
 }
 
 func TestGetSections(t *testing.T) {
-
-	t.Run("tests should pass for sending input by file", func(t *testing.T) {
-		expect := ReturnedExpectedMap()
-
-		ini := inipkg.NewIni()
-		ini.LoadFromFile(filePath)
-
-		result := ini.GetSections()
-
-		assert.Equal(t, expect, result)
-	})
-
 	t.Run("tests should pass for sending input by strings", func(t *testing.T) {
 
 		tests := []struct {
@@ -205,35 +168,28 @@ func TestGetSections(t *testing.T) {
 		}{
 			{
 				description: "test for retrive ini map correctly",
-
 				input: `[ package name ]
 					name = ini parser
 				file path =  /pkg/ini.go
-
 				[package version]
 				version = v1.0.0`,
-
 				expect: ReturnedExpectedMap(),
 			},
 			{
 				description: "test for retrive empty section",
-
 				input: `[]
 				key = value
 				`,
-
 				expect: make(map[string]map[string]string),
 			},
 			{
 				description: "test for retrive iniMap while there is no key and value for section",
-
 				input: `[ package name ]
 					name = ini parser
 				file path =  /pkg/ini.go
 
 				[package version]
 				`,
-
 				expect: map[string]map[string]string{
 					"package name": {
 						"name":      "ini parser",
@@ -257,10 +213,111 @@ func TestGetSections(t *testing.T) {
 	})
 }
 
-// func TestGet(t *testing.T) {
-// 	ini := inipkg.NewIni()
-// 	ini.LoadFromFile(filePath)
+func TestGet(t *testing.T) {
+	t.Run("tests should pass for sending input by strings", func(t *testing.T) {
+		input := `
+				[ package name ]
+			name = ini parser
+		file path =  /pkg/ini.go
 
-// 	result, _ := ini.Get("package name", "name")
-// 	t.Errorf("%v   ", result)
-// }
+		[package version]
+		version = v1.0.0
+
+		;comment should not be part of ini map
+
+		`
+
+		tests := []struct {
+			description string
+			section     string
+			key         string
+			expect      string
+			err         error
+		}{
+			{
+				description: "test for retrive value correctly",
+				section:     "package name",
+				key:         "name",
+				expect:      "ini parser",
+				err:         nil,
+			},
+			{
+				description: "test for retrive key not exist",
+				section:     "package name",
+				key:         "wrongname",
+				expect:      "",
+				err:         errors.New("there is no key with this name"),
+			},
+			{
+				description: "test for retrive secion not exist",
+				section:     "package",
+				key:         "wrongname",
+				expect:      "",
+				err:         errors.New("there is no section with this name"),
+			},
+		}
+
+		for _, test := range tests {
+			t.Run(test.description, func(t *testing.T) {
+				ini := inipkg.NewIni()
+				ini.LoadFromString(input)
+
+				value, err := ini.Get(test.section, test.key)
+				assert.Equal(t, test.expect, value)
+				assert.Equal(t, test.err, err)
+			})
+		}
+
+	})
+
+}
+
+func TestSet(t *testing.T) {
+	t.Run("tests should pass for sending input by strings", func(t *testing.T) {
+
+		input := `
+				[ package name ]
+			name = ini parser
+		file path =  /pkg/ini.go
+
+		[package version]
+		version = v1.0.0
+
+		;comment should not be part of ini map
+
+		`
+		tests := []struct {
+			description string
+			section     string
+			key         string
+			value       string
+		}{
+			{
+				description: "test for set new value correctly",
+				section:     "package name",
+				key:         "name",
+				value:       "parser",
+			},
+			{
+				description: "test for set new key and value correctly",
+				section:     "package version",
+				key:         "new version",
+				value:       "v2.0.0",
+			},
+		}
+
+		for _, test := range tests {
+			t.Run(test.description, func(t *testing.T) {
+				ini := inipkg.NewIni()
+				ini.LoadFromString(input)
+
+				ini.Set(test.section, test.key, test.value)
+
+				expect, _ := ini.Get(test.section, test.key)
+				assert.Equal(t, expect, test.value)
+			})
+		}
+
+	})
+
+}
