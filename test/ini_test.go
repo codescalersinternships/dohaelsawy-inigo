@@ -4,6 +4,7 @@ import (
 	"errors"
 	"reflect"
 	"testing"
+
 	inipkg "github.com/dohaelsawy/codescalers/ini/pkg"
 	"github.com/stretchr/testify/assert"
 )
@@ -351,5 +352,32 @@ func TestSaveToFile(t *testing.T) {
 
 		assert.Equal(t, expect ,savedResult)
 
+	})
+}
+
+
+
+func TestToString(t *testing.T) {
+	t.Run("tests should pass converting iniMap to string", func(t *testing.T) {
+		input := `  [ package name ]
+				name = ini parser
+			file path =  /pkg/ini.go
+
+			[package version]
+			version = v1.0.0
+
+			;comment should not be part of ini map
+
+		`
+
+		ini := inipkg.NewIni()
+		
+		ini.LoadFromString(input)
+		result := ini.ToString()
+
+		ini.LoadFromFile(filePath)
+		expect := ini.ToString()
+
+		assert.Equal(t, result,expect)
 	})
 }
