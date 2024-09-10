@@ -3,7 +3,6 @@ package test
 import (
 	"errors"
 	"testing"
-
 	inipkg "github.com/dohaelsawy/codescalers/ini/pkg"
 	"github.com/stretchr/testify/assert"
 )
@@ -41,7 +40,7 @@ func TestLoadFromString(t *testing.T) {
 		err    error
 	}{
 		{
-			description: "correct input by INI Rules",
+			description: "test for correct input by INI Rules",
 
 			input: `  [ package name ]
 					name = ini parser
@@ -57,7 +56,7 @@ func TestLoadFromString(t *testing.T) {
 			err: nil,
 		},
 		{
-			description: "input missing ] between key and value",
+			description: "test for input missing ] between key and value",
 
 			input: `  [ package name 
 			name = ini parser
@@ -74,7 +73,7 @@ func TestLoadFromString(t *testing.T) {
 			err: errors.New("the file is not following ini rules"),
 		},
 		{
-			description: "input missing the key and its value ",
+			description: "test for input missing the key and its value ",
 
 			input: `  [ package name ]
 			name = ini parser
@@ -88,6 +87,15 @@ func TestLoadFromString(t *testing.T) {
 			expect: make(map[string]map[string]string, 0),
 
 			err: errors.New("the file is not following ini rules"),
+		},
+		{
+			description: "test for input empty",
+
+			input: `
+			`,
+			expect: make(map[string]map[string]string, 0),
+
+			err: nil,
 		},
 	}
 	for _, test := range tests {
@@ -111,8 +119,48 @@ func TestGetSectionNames(t *testing.T) {
 		ini.LoadFromFile(filePath)
 
 		result := ini.GetSectionNames()
-		t.Logf("%v",ini.IniMap)
 		assert.Equal(t, expect, result)
+	})
+
+	t.Run("tests should pass for sending input by strings", func(t *testing.T) {
+
+		tests := []struct{
+			description string
+			input string 
+			expect []string
+		}{
+			{
+				description: "test for retrive all section names correctly",
+
+				input:`[ package name ]
+					name = ini parser
+				file path =  /pkg/ini.go
+
+				[package version]` ,
+
+				expect: []string{"package name","package version"},
+			},
+			{
+
+				description: "test for retrive empty section names",
+				
+				input:`[]` ,
+
+				expect: []string{""},
+			},
+
+		}
+
+		for _, test := range tests {
+			t.Run(test.description,func(t *testing.T) {
+				ini := inipkg.NewIni()
+				ini.LoadFromString(test.input)
+
+				result := ini.GetSectionNames()
+				assert.Equal(t, test.expect, result)
+			})			
+		}
+		
 	})
 }
 
