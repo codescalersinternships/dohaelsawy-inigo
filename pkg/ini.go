@@ -39,10 +39,11 @@ func (ini *IniFile) LoadFromFile(path string) error {
 
 func (ini *IniFile) LoadFromString(data string) error {
 
-	lines := strings.Split(data, "\n\t")
+	lines := strings.Split(data, "\n")
 
 	var lastSection string
 	var keyValue []string
+	var key , value string
 
 	for _, line := range lines {
 
@@ -61,20 +62,25 @@ func (ini *IniFile) LoadFromString(data string) error {
 		}
 
 		if _, ok := ini.IniMap[lastSection]; !ok {
+
+			ini.IniMap = map[string]map[string]string{}
 			return ErrInStructure
 		}
 
-		keyValue = strings.Split(iniLine, "=")
+		keyValue = strings.Split(iniLine,"=")
+
 		
-		if len(keyValue) != 2 {
+		key = strings.Trim(keyValue[0]," \n\t")
+		value = strings.Trim(keyValue[1]," \n\t")
+
+		if key == "" || value == "" {
+			ini.IniMap = map[string]map[string]string{}
+			
 			return ErrInStructure
 		}
 
-		for i , kv := range keyValue{
-			keyValue[i] = strings.Trim(kv," \n")
-		}
-
-		ini.IniMap[lastSection][keyValue[0]] = keyValue[1]
+		ini.IniMap[lastSection][key] = value
+	
 	}
 	return nil
 }
