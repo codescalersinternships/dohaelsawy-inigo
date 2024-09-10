@@ -60,9 +60,9 @@ func TestLoadFromString(t *testing.T) {
 	}{
 		{
 			description: "test for correct input by INI Rules",
-			input: generalInput,
-			expect: ReturnedExpectedMap(),
-			err:    nil,
+			input:       generalInput,
+			expect:      ReturnedExpectedMap(),
+			err:         nil,
 		},
 
 		{
@@ -137,8 +137,8 @@ func TestGetSectionNames(t *testing.T) {
 		}{
 			{
 				description: "test for retrive all section names correctly",
-				input: generalInput ,
-				expect: []string{"package name", "package version"},
+				input:       generalInput,
+				expect:      []string{"package name", "package version"},
 			},
 			{
 				description: "test for retrive empty section names",
@@ -152,7 +152,7 @@ func TestGetSectionNames(t *testing.T) {
 			t.Run(test.description, func(t *testing.T) {
 
 				ini := inipkg.NewIni()
-				ini.LoadFromString(test.input)
+				_ = ini.LoadFromString(test.input)
 
 				result := ini.GetSectionNames()
 
@@ -176,8 +176,8 @@ func TestGetSections(t *testing.T) {
 		}{
 			{
 				description: "test for retrive ini map correctly",
-				input: generalInput,
-				expect: ReturnedExpectedMap(),
+				input:       generalInput,
+				expect:      ReturnedExpectedMap(),
 			},
 			{
 				description: "test for retrive empty section",
@@ -207,7 +207,7 @@ func TestGetSections(t *testing.T) {
 		for _, test := range tests {
 			t.Run(test.description, func(t *testing.T) {
 				ini := inipkg.NewIni()
-				ini.LoadFromString(test.input)
+				_ = ini.LoadFromString(test.input)
 
 				result := ini.GetSections()
 				assert.Equal(t, test.expect, result)
@@ -219,7 +219,7 @@ func TestGetSections(t *testing.T) {
 
 func TestGet(t *testing.T) {
 	t.Run("tests should pass for sending input by strings", func(t *testing.T) {
-		input := generalInput 
+		input := generalInput
 
 		tests := []struct {
 			description string
@@ -254,7 +254,7 @@ func TestGet(t *testing.T) {
 		for _, test := range tests {
 			t.Run(test.description, func(t *testing.T) {
 				ini := inipkg.NewIni()
-				ini.LoadFromString(input)
+				_ = ini.LoadFromString(input)
 
 				value, err := ini.Get(test.section, test.key)
 				assert.Equal(t, test.expect, value)
@@ -300,7 +300,7 @@ func TestSet(t *testing.T) {
 		for _, test := range tests {
 			t.Run(test.description, func(t *testing.T) {
 				ini := inipkg.NewIni()
-				ini.LoadFromString(input)
+				_ = ini.LoadFromString(input)
 
 				ini.Set(test.section, test.key, test.value)
 
@@ -318,15 +318,15 @@ func TestSaveToFile(t *testing.T) {
 		input := generalInput
 
 		ini := inipkg.NewIni()
-		ini.LoadFromString(input)
+		_ = ini.LoadFromString(input)
 
 		path := "/home/doha/doha/codescalers/week2/ini/file.ini"
 
-		ini.SaveToFile(path)
+		_ = ini.SaveToFile(path)
 
 		savedResult := ini.GetSections()
 
-		ini.LoadFromFile(path)
+		_ = ini.LoadFromFile(path)
 		expect := ini.IniMap
 
 		assert.Equal(t, expect, savedResult)
@@ -339,14 +339,14 @@ func TestToString(t *testing.T) {
 
 		ini := inipkg.NewIni()
 
-		ini.LoadFromFile(filePath)
+		_ = ini.LoadFromFile(filePath)
 		result := ini.ToString()
 
-		ini.LoadFromString(result)
+		_ = ini.LoadFromString(result)
 		expect := ini.ToString()
 
-		if !reflect.DeepEqual(expect,result){
-			t.Errorf("i expect %v , i got %v", expect,result)
+		if !reflect.DeepEqual(expect, result) {
+			t.Errorf("i expect %v , i got %v", expect, result)
 		}
 	})
 }

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 )
 
@@ -120,28 +121,25 @@ func (ini *IniFile) SaveToFile(filename string) error {
 	if err != nil {
 		return err
 	}
-	for section, keys := range ini.IniMap {
-		file.WriteString("[")
-		file.WriteString(section)
-		file.WriteString("]")
-		file.WriteString("\n")
-		for key, value := range keys {
-			file.WriteString(key)
-			file.WriteString(" = ")
-			file.WriteString(value)
-			file.WriteString("\n")
-		}
-	}
+	initext := ini.ToString()
+	_, err =  file.WriteString(initext)
 
+	if err != nil {
+		return err
+	} 
 	defer file.Close()
 	return nil
 }
 
 func (ini *IniFile) ToString() string {
 	var iniText string
-	for section, keys := range ini.IniMap {
+
+	sections := ini.GetSectionNames()
+	sort.Strings(sections)
+
+	for _, section := range sections {
 		iniText += fmt.Sprintf("[%s]\n", section)
-		for key, value := range keys {
+		for key, value := range ini.IniMap[section] {
 			iniText += fmt.Sprintf("%s = %s\n", key, value)
 		}
 	}
