@@ -39,14 +39,14 @@ func (ini *IniFile) LoadFromFile(path string) error {
 
 func (ini *IniFile) LoadFromString(data string) error {
 
-	lines := strings.Split(data, "\n")
+	lines := strings.Split(data, "\n\t")
 
 	var lastSection string
 	var keyValue []string
 
 	for _, line := range lines {
 
-		iniLine := strings.Trim(line, " \n")
+		iniLine := strings.Trim(line, " \n\t")
 
 		if len(iniLine) == 0 || iniLine[0] == ';' {
 			continue
