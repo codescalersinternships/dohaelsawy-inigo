@@ -13,15 +13,15 @@ ini is a simple Go package for manipulating ini files.
 ## Installation 
  - 1. Clone project
 ```
-https://github.com/codescalersinternships/dohaelsawy-inigo.git
+   https://github.com/codescalersinternships/dohaelsawy-inigo.git
 ```
 - 2. Import package as inipkg
 ```
-inipkg "github.com/dohaelsawy/codescalers/ini/pkg" // you can change inipkg name
+   inipkg "github.com/dohaelsawy/codescalers/ini/pkg" // you can change inipkg name
 ```
 - 3. You need to make a new ini paser
  ```
- ini := inipkg.New()
+   ini := inipkg.New()
 ```
 ## Then you can do the following
 - 1 - Load your data from file or string
