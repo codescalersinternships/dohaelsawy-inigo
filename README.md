@@ -17,7 +17,7 @@ ini is a simple Go package for manipulating ini files.
 ```
 - 2. Import package as inipkg
 ```golang
-   inipkg "github.com/dohaelsawy/codescalers/ini/pkg" // you can change inipkg name
+  import inipkg "github.com/dohaelsawy/codescalers/ini/pkg" // you can change inipkg name
 ```
 - 3. You need to make a new ini paser
  ```golang
