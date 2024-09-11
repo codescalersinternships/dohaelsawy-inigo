@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const filePath = "/home/doha/doha/codescalers/week2/ini/test/testdata/data.ini"
+const filePath = "./testdata/data.ini"
 
 const generalInput = `  [ package name ]
 	name = ini parser
@@ -320,7 +320,7 @@ func TestSaveToFile(t *testing.T) {
 		ini := inipkg.NewIni()
 		_ = ini.LoadFromString(input)
 
-		path := "/home/doha/doha/codescalers/week2/ini/file.ini"
+		path := "./file.ini"
 
 		_ = ini.SaveToFile(path)
 
