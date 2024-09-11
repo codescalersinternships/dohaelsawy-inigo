@@ -10,7 +10,7 @@ ini is a simple Go package for manipulating ini files.
 - Save your edits to ini file to new or exist file
 - convet your ini file to single string
 
-  ## Installation :
+## Installation 
  - 1. Clone project
 ```
 https://github.com/codescalersinternships/dohaelsawy-inigo.git
