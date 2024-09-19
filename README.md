@@ -13,7 +13,7 @@ ini is a simple Go package for manipulating ini files.
 ## Installation 
  - 1. Clone project
 ```
-   https://github.com/codescalersinternships/dohaelsawy-inigo.git
+   go get https://github.com/codescalersinternships/dohaelsawy-inigo
 ```
 - 2. Import package as inipkg
 ```golang
