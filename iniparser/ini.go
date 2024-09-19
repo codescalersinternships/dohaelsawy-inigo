@@ -21,7 +21,7 @@ var (
 	ErrNoKey = errors.New("there is no key with this name")
 )
 
-// Representation of ini file structure
+// Parser represent of ini file structure
 type Parser struct {
 	iniMap map[string]map[string]string
 }
@@ -106,7 +106,7 @@ func (ini *Parser) GetSections() map[string]map[string]string {
 	return ini.iniMap
 }
 
-// Get gets value true if exist and empty string false if it isn't
+// Get reports whether the section and key exists
 func (ini *Parser) Get(sectionName, key string) (string, bool) {
 
 	value, exists := ini.iniMap[sectionName][key]

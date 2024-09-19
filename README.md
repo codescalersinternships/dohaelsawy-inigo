@@ -11,7 +11,7 @@ ini is a simple Go package for manipulating ini files.
 - convet your ini file to single string
 
 ## Installation 
- - 1. Clone project
+ - 1. Get package
 ```
    go get https://github.com/codescalersinternships/dohaelsawy-inigo
 ```
