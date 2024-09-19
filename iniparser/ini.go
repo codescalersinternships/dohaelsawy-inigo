@@ -1,3 +1,5 @@
+// Package iniparser implements several functions to parse and manipulate ini file
+
 package iniparser
 
 import (
@@ -8,30 +10,28 @@ import (
 	"strings"
 )
 
+// Generic INI file system errors.
 var (
-	// used when the given ini file/string not following ini rules
 	ErrSyntax = errors.New("the file is not following ini rules")
 
 	ErrNoGlobalKey = errors.New("global keys ara not allowed")
 
-	// used when trying to retrive specified section that is not exist
 	ErrNoSection = errors.New("there is no section with this name")
 
-	// used when trying to retrive specified key that is not exist
 	ErrNoKey = errors.New("there is no key with this name")
 )
 
-// representation of ini file structure
+// Representation of ini file structure
 type Parser struct {
 	iniMap map[string]map[string]string
 }
 
-// initialize the ini parser structure
+// NewIni initialize the ini parser structure
 func NewIni() *Parser {
 	return &Parser{iniMap: make(map[string]map[string]string)}
 }
 
-// LoadFromFile loads INI files
+// LoadFromFile load ini file and return error if exist while parsing
 func (ini *Parser) LoadFromFile(path string) error {
 	data, err := os.ReadFile(path)
 
@@ -42,16 +42,7 @@ func (ini *Parser) LoadFromFile(path string) error {
 	return ini.LoadFromString(string(data))
 }
 
-/* Rules of ini file:
-
-1- assume there're no global keys, every keys need to be part of a section
-2- assume the key value separator is just '='
-3- keys and values should have spaces trimmed
-4- comments are only valid at the beginning of the line
-
-*/
-
-// LoadFromString parser ini text
+// LoadFromString load ini text and return error if exist while parsing
 func (ini *Parser) LoadFromString(data string) error {
 
 	lines := strings.Split(data, "\n")
@@ -99,7 +90,7 @@ func (ini *Parser) LoadFromString(data string) error {
 	return nil
 }
 
-// iterate over ini structure and retrive all sections that found
+// GetSectionNames retrive all sections that found
 func (ini *Parser) GetSectionNames() []string {
 	var sections []string
 
@@ -110,12 +101,12 @@ func (ini *Parser) GetSectionNames() []string {
 	return sections
 }
 
-// retrive ini structure with all its sections, keys and values
+// GetSections retrive ini structure with all its sections, keys and values
 func (ini *Parser) GetSections() map[string]map[string]string {
 	return ini.iniMap
 }
 
-// Get gets value, true if exist
+// Get gets value true if exist and empty string false if it isn't
 func (ini *Parser) Get(sectionName, key string) (string, bool) {
 
 	value, exists := ini.iniMap[sectionName][key]
@@ -133,6 +124,7 @@ func (ini *Parser) Set(sectionName, key, value string) {
 	ini.iniMap[sectionName][key] = value
 }
 
+// SaveToFile save ini structure into a file
 func (ini *Parser) SaveToFile(filename string) error {
 
 	initext := ini.String()
