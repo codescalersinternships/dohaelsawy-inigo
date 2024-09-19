@@ -23,3 +23,13 @@ go.work.sum
 
 # env file
 .env
+sample.ini
+
+notes.txt
+
+
+main.go
+
+temp
+
+iniparser/file.ini
